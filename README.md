@@ -1,2 +1,2 @@
 # Core
-Core service where financial products are registered
+Core service where financial products are registered and managed
