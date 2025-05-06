@@ -22,9 +22,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	implementation platform("com.google.cloud:spring-cloud-gcp-dependencies:6.1.1")
-	implementation 'com.google.cloud:spring-cloud-gcp-starter-pubsub'
+	implementation 'com.google.cloud:google-cloud-pubsub:1.123.0'
+	implementation "com.google.cloud:spring-cloud-gcp-starter-pubsub:6.1.1"
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'org.springframework.integration:spring-integration-core'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:testcontainers'
