@@ -1,4 +1,4 @@
-package io.autoinvestor.infrastructure;
+package io.autoinvestor.infrastructure.repositories;
 
 import io.autoinvestor.domain.Asset;
 import io.autoinvestor.domain.AssetRepository;
@@ -8,27 +8,29 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
 @Profile("prod")
-public class MongoAssetRepository implements AssetRepository {
+class MongoAssetRepository implements AssetRepository {
 
-    private final MongoTemplate mongoTemplate;
+    private final MongoTemplate template;
+    private final AssetMapper mapper;
 
-    public MongoAssetRepository(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public MongoAssetRepository(MongoTemplate template, AssetMapper mapper) {
+        this.template = template;
+        this.mapper = mapper;
     }
 
     @Override
     public void save(Asset asset) {
-        mongoTemplate.save(asset);
+        template.save(mapper.toDocument(asset));
     }
 
     @Override
     public boolean exists(String mic, String ticker) {
-        Query q = new Query(Criteria
+        var q = Query.query(Criteria
                 .where("mic").is(mic)
-                .and("ticker").is(ticker)
-        );
-        return mongoTemplate.exists(q, Asset.class);
+                .and("ticker").is(ticker));
+        return template.exists(q, AssetDocument.class);
     }
 }

@@ -1,4 +1,4 @@
-package io.autoinvestor.infrastructure;
+package io.autoinvestor.infrastructure.repositories;
 
 import io.autoinvestor.domain.Asset;
 import io.autoinvestor.domain.AssetRepository;

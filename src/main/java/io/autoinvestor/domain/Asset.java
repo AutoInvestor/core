@@ -6,27 +6,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-@Document(collection = "assets")
 public class Asset extends AggregateRoot {
-    @Id
     private AssetId id;
     private Mic mic;
     private Ticker ticker;
     private Date createdAt;
     private Date updatedAt;
-
-    // Protected no-args ctor for Spring Data
-    protected Asset() {}
-
-    // Persistence constructor for all fields
-    @PersistenceConstructor
-    public Asset(AssetId id, Mic mic, Ticker ticker, Date createdAt, Date updatedAt) {
-        this.id = id;
-        this.mic = mic;
-        this.ticker = ticker;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 
     private Asset(Mic mic, Ticker ticker) {
         this.id = AssetId.generate();
