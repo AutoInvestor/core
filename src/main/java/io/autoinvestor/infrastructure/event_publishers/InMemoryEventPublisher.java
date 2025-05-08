@@ -1,4 +1,4 @@
-package io.autoinvestor.infrastructure;
+package io.autoinvestor.infrastructure.event_publishers;
 
 import io.autoinvestor.domain.Event;
 import io.autoinvestor.domain.EventPublisher;
