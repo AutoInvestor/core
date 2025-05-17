@@ -2,6 +2,7 @@ package io.autoinvestor.ui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.autoinvestor.domain.AssetRepository;
+import io.autoinvestor.infrastructure.event_publishers.InMemoryEventPublisher;
 import io.autoinvestor.infrastructure.repositories.InMemoryAssetRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Import(InMemoryAssetRepository.class)
+@Import({InMemoryAssetRepository.class, InMemoryEventPublisher.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class RegisterAssetControllerTest {
 
