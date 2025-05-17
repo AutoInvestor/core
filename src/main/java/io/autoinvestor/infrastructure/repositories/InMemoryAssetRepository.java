@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Repository
-@Profile("test")
+@Profile("local")
 public class InMemoryAssetRepository implements AssetRepository {
     private final Map<String, Asset> assetStore = new HashMap<>();
 

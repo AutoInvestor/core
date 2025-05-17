@@ -8,16 +8,13 @@ import com.google.pubsub.v1.PubsubMessage;
 import com.google.cloud.pubsub.v1.Publisher;
 import io.autoinvestor.domain.Event;
 import io.autoinvestor.domain.EventPublisher;
-import io.autoinvestor.exceptions.InternalErrorException;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
