@@ -13,7 +13,7 @@ public class RegisterAssetCommandHandler {
     private final EventPublisher eventPublisher;
 
     public RegisterAssetCommandHandler(AssetRepository repository,
-                                         EventPublisher eventPublisher) {
+                                       EventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }
@@ -23,7 +23,7 @@ public class RegisterAssetCommandHandler {
             throw new AssetAlreadyExists("Duplicated asset for this mic: " + command.mic() + " and ticker: " + command.ticker());
         }
 
-        Asset asset = Asset.create(command.mic(), command.ticker());
+        Asset asset = Asset.create(command.mic(), command.ticker(), command.name());
 
         this.repository.save(asset);
         this.eventPublisher.publish(asset.releaseEvents());

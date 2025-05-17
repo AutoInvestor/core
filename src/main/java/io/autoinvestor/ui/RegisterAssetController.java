@@ -22,7 +22,7 @@ public class RegisterAssetController {
     @PostMapping
     public ResponseEntity<Void> handle(@RequestBody RegisterAssetDTO dto) {
         this.commandHandler.handle(new RegisterAssetCommand(
-                dto.mic(), dto.ticker()
+                dto.mic(), dto.ticker(), dto.name()
         ));
         return ResponseEntity.ok().build();
     }

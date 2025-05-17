@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       SPRING_PROFILES_ACTIVE: local
-
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4

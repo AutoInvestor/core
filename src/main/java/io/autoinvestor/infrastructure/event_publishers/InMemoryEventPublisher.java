@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile("local")
+@Profile("test")
 public class InMemoryEventPublisher implements EventPublisher {
 
     private final ApplicationEventPublisher eventPublisher;

@@ -9,7 +9,8 @@ public class AssetWasRegisteredEvent extends Event<AssetWasRegisteredEventPayloa
     public static AssetWasRegisteredEvent from(Asset asset) {
         AssetWasRegisteredEventPayload payload = new AssetWasRegisteredEventPayload(
                 asset.mic(),
-                asset.ticker()
+                asset.ticker(),
+                asset.name()
         );
         return new AssetWasRegisteredEvent(asset.getId(), payload);
     }
