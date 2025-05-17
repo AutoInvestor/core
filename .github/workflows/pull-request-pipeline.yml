@@ -8,6 +8,10 @@ on:
 jobs:
   build-and-test-pipeline:
     runs-on: ubuntu-22.04
+    env:
+      SPRING_PROFILES_ACTIVE: test
+      BP_SPRING_PROFILES_ACTIVE: test
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
