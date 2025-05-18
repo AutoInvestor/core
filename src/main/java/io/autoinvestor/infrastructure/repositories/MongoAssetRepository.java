@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-@Profile("test")
+@Profile("prod")
 class MongoAssetRepository implements AssetRepository {
 
     private final MongoTemplate template;
