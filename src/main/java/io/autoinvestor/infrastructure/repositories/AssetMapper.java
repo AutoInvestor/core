@@ -11,6 +11,7 @@ class AssetMapper {
                 domain.getId().value(),
                 domain.mic(),
                 domain.ticker(),
+                domain.name(),
                 domain.getCreatedAt().toInstant(),
                 domain.getUpdatedAt().toInstant());
     }

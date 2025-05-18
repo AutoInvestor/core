@@ -11,5 +11,6 @@ public record AssetDocument(
         @Id String assetId,
         String mic,
         String ticker,
+        String name,
         @Field("occurredAt") Instant occurredAt,
         Instant updatedAt) {}
