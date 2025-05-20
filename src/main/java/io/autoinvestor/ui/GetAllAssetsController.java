@@ -1,7 +1,5 @@
-// io.autoinvestor.ui.GetAllAssetsController
 package io.autoinvestor.ui;
 
-import io.autoinvestor.application.GetAllAssetsCommand;
 import io.autoinvestor.application.GetAllAssetsCommandHandler;
 import io.autoinvestor.application.GetAssetResponse;
 import org.springframework.http.ResponseEntity;
