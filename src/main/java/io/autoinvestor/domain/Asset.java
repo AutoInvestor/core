@@ -41,6 +41,10 @@ public class Asset extends AggregateRoot {
         return name.value();
     }
 
+    public String id() {
+        return id.value();
+    }
+
     public AssetId getId() {
         return id;
     }
