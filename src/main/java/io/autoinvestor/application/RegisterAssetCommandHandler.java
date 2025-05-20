@@ -18,7 +18,7 @@ public class RegisterAssetCommandHandler {
         this.eventPublisher = eventPublisher;
     }
 
-    public void handle(RegisterAssetCommand command) {
+    public RegisterAssetResponse handle(RegisterAssetCommand command) {
         if (this.repository.exists(command.mic(), command.ticker())) {
             throw new AssetAlreadyExists("Duplicated asset for this mic: " + command.mic() + " and ticker: " + command.ticker());
         }
@@ -27,5 +27,12 @@ public class RegisterAssetCommandHandler {
 
         this.repository.save(asset);
         this.eventPublisher.publish(asset.releaseEvents());
+
+        return new RegisterAssetResponse(
+                asset.id(),
+                asset.mic(),
+                asset.ticker(),
+                asset.name()
+        );
     }
 }

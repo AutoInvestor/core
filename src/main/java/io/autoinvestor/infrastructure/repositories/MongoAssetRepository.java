@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -41,5 +43,16 @@ class MongoAssetRepository implements AssetRepository {
     public Optional<Asset> findById(AssetId assetId) {
         return Optional.ofNullable(template.findById(assetId.value(), AssetDocument.class))
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Asset> findAll() {
+        var q = new Query();
+        var assetDocuments = template.find(q, AssetDocument.class);
+        List<Asset> assets = new ArrayList<>();
+        for (AssetDocument assetDocument : assetDocuments) {
+            assets.add(mapper.toDomain(assetDocument));
+        }
+        return assets;
     }
 }

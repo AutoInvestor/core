@@ -6,9 +6,7 @@ import io.autoinvestor.domain.AssetRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @Profile("local")
@@ -29,6 +27,11 @@ public class InMemoryAssetRepository implements AssetRepository {
     @Override
     public Optional<Asset> findById(AssetId assetId) {
         return Optional.ofNullable(assetStore.get(assetId.value()));
+    }
+
+    @Override
+    public List<Asset> findAll() {
+        return new ArrayList<>(assetStore.values());
     }
 
     public void clear() {

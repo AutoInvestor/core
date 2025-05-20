@@ -2,6 +2,7 @@ package io.autoinvestor.ui;
 
 import io.autoinvestor.application.RegisterAssetCommand;
 import io.autoinvestor.application.RegisterAssetCommandHandler;
+import io.autoinvestor.application.RegisterAssetResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/register")
+@RequestMapping("/assets")
 public class RegisterAssetController {
 
     private final RegisterAssetCommandHandler commandHandler;
@@ -20,10 +21,16 @@ public class RegisterAssetController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> handle(@RequestBody RegisterAssetDTO dto) {
-        this.commandHandler.handle(new RegisterAssetCommand(
-                dto.mic(), dto.ticker(), dto.name()
+    public ResponseEntity<AssetDTO> handle(@RequestBody RegisterAssetDTO queryDto) {
+        RegisterAssetResponse response = this.commandHandler.handle(new RegisterAssetCommand(
+                queryDto.mic(), queryDto.ticker(), queryDto.name()
         ));
-        return ResponseEntity.ok().build();
+        AssetDTO dto = new AssetDTO(
+                response.assetId(),
+                response.mic(),
+                response.ticker(),
+                response.name()
+        );
+        return ResponseEntity.ok(dto);
     }
 }
