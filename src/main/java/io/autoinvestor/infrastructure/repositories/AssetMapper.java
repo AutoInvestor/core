@@ -3,6 +3,8 @@ package io.autoinvestor.infrastructure.repositories;
 import io.autoinvestor.domain.Asset;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 class AssetMapper {
 
@@ -21,8 +23,8 @@ class AssetMapper {
                 assetDocument.mic(),
                 assetDocument.ticker(),
                 assetDocument.name(),
-                assetDocument.occurredAt(),
-                assetDocument.updatedAt());
+                Date.from(assetDocument.occurredAt()),
+                Date.from(assetDocument.updatedAt()));
     }
 }
 
