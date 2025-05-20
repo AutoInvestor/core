@@ -1,6 +1,8 @@
 package io.autoinvestor.ui;
 
 import io.autoinvestor.exceptions.*;
+import io.autoinvestor.infrastructure.fetchers.PriceFetchFailedException;
+import io.autoinvestor.infrastructure.fetchers.PriceNotAvailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +25,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
+                .message(ex.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(PriceNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handlePriceNotAvailableException(PriceNotAvailableException ex) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .message(ex.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(PriceFetchFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePriceFetchFailedException(PriceFetchFailedException ex) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .message(ex.getMessage())
                 .build();
     }

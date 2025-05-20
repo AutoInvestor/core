@@ -15,5 +15,14 @@ class AssetMapper {
                 domain.getCreatedAt().toInstant(),
                 domain.getUpdatedAt().toInstant());
     }
+
+    public Asset toDomain(AssetDocument assetDocument) {
+        return Asset.create(
+                assetDocument.mic(),
+                assetDocument.ticker(),
+                assetDocument.name(),
+                assetDocument.occurredAt(),
+                assetDocument.updatedAt());
+    }
 }
 
