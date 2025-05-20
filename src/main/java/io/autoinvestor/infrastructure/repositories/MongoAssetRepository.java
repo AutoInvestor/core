@@ -1,12 +1,15 @@
 package io.autoinvestor.infrastructure.repositories;
 
 import io.autoinvestor.domain.Asset;
+import io.autoinvestor.domain.AssetId;
 import io.autoinvestor.domain.AssetRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 
 @Repository
@@ -32,5 +35,11 @@ class MongoAssetRepository implements AssetRepository {
                 .where("mic").is(mic)
                 .and("ticker").is(ticker));
         return template.exists(q, AssetDocument.class);
+    }
+
+    @Override
+    public Optional<Asset> findById(AssetId assetId) {
+        return Optional.ofNullable(template.findById(assetId.value(), AssetDocument.class))
+                .map(mapper::toDomain);
     }
 }

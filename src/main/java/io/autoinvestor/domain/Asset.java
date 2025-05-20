@@ -8,21 +8,25 @@ public class Asset extends AggregateRoot {
     private final Ticker ticker;
     private final CompanyName name;
     private final Date createdAt;
-    private Date updatedAt;
+    private final Date updatedAt;
 
-    private Asset(Mic mic, Ticker ticker, CompanyName name) {
+    private Asset(Mic mic, Ticker ticker, CompanyName name, Date createdAt, Date updatedAt) {
         this.id = AssetId.generate();
         this.mic = mic;
         this.ticker = ticker;
         this.name = name;
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
 
         this.recordEvent(AssetWasRegisteredEvent.from(this));
     }
 
     public static Asset create(String mic, String ticker, String name) {
-        return new Asset(Mic.from(mic), Ticker.from(ticker), CompanyName.from(name));
+        return new Asset(Mic.from(mic), Ticker.from(ticker), CompanyName.from(name), new Date(), new Date());
+    }
+
+    public static Asset create(String mic, String ticker, String name, Date createdAt, Date updatedAt) {
+        return new Asset(Mic.from(mic), Ticker.from(ticker), CompanyName.from(name), createdAt, updatedAt);
     }
 
     public String mic() {
