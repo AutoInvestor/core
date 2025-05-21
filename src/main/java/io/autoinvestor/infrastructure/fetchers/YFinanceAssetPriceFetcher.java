@@ -25,9 +25,15 @@ public class YFinanceAssetPriceFetcher implements AssetPriceFetcher {
 
     static {
         System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
         System.setProperty(
                 "yahoofinance.baseurl.quotesquery1v7",
                 "https://query1.finance.yahoo.com/v6/finance/quote"
+        );
+
+        System.setProperty(
+                "yahoofinance.baseurl.histquotes",
+                "https://query1.finance.yahoo.com/v7/finance/download"
         );
     }
 
@@ -43,17 +49,22 @@ public class YFinanceAssetPriceFetcher implements AssetPriceFetcher {
         to.add(Calendar.DAY_OF_MONTH, DAYS_LOOKBACK_BUFFER);
 
         try {
-            Stock stock = YahooFinance.get(asset.ticker(), from, to, Interval.DAILY);
+            Stock stock = YahooFinance.get(asset.ticker());
             if (stock == null) {
                 throw new PriceNotAvailableException("No data returned for " + asset);
             }
 
-            List<HistoricalQuote> history = stock.getHistory();
+            List<HistoricalQuote> history = stock.getHistory(from, to, Interval.DAILY);
+            if (history == null || history.isEmpty()) {
+                throw new PriceNotAvailableException(
+                        String.format("No historical data for %s between %s and %s", asset, from.getTime(), to.getTime())
+                );
+            }
+
             HistoricalQuote bar = history.stream()
                     .filter(h -> h.getDate() != null)
-                    .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
                     .filter(h -> !h.getDate().after(target))
-                    .findFirst()
+                    .max((a, b) -> a.getDate().compareTo(b.getDate()))
                     .orElseThrow(() -> new PriceNotAvailableException(
                             String.format("No historical bar found for %s on or before %s", asset, date)
                     ));
@@ -67,9 +78,9 @@ public class YFinanceAssetPriceFetcher implements AssetPriceFetcher {
 
             return close.floatValue();
         } catch (IOException ex) {
-            logger.error("Error fetching price for {} on {}: {}", asset, date, ex.getMessage(), ex);
+            logger.error("Error fetching price for {} on {}:", asset, date, ex);
             throw new PriceFetchFailedException(
-                    String.format("Unable to fetch price for %s from Yahoo Finance", asset)
+                    String.format("Unable to fetch price for %s from Yahoo Finance %s", asset, ex)
             );
         }
     }

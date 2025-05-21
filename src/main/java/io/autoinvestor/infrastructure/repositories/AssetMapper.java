@@ -19,7 +19,8 @@ class AssetMapper {
     }
 
     public Asset toDomain(AssetDocument assetDocument) {
-        return Asset.create(
+        return Asset.from(
+                assetDocument.assetId(),
                 assetDocument.mic(),
                 assetDocument.ticker(),
                 assetDocument.name(),
