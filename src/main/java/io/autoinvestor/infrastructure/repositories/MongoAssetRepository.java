@@ -41,7 +41,10 @@ class MongoAssetRepository implements AssetRepository {
 
     @Override
     public Optional<Asset> findById(AssetId assetId) {
-        return Optional.ofNullable(template.findById(assetId.value(), AssetDocument.class))
+        String id = assetId.value();
+        var q = Query.query(Criteria.where("_id").is(id));
+        AssetDocument doc = template.findOne(q, AssetDocument.class);
+        return Optional.ofNullable(doc)
                 .map(mapper::toDomain);
     }
 
