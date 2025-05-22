@@ -1,87 +1,116 @@
 package io.autoinvestor.infrastructure.fetchers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.autoinvestor.domain.Asset;
 import io.autoinvestor.domain.AssetPriceFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import yahoofinance.YahooFinance;
-import yahoofinance.Stock;
-import yahoofinance.histquotes.HistoricalQuote;
-import yahoofinance.histquotes.Interval;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+
 
 @Component
 public class YFinanceAssetPriceFetcher implements AssetPriceFetcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(YFinanceAssetPriceFetcher.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(YFinanceAssetPriceFetcher.class);
+
+    /** ± days around the target date that we request in one call */
     private static final int DAYS_LOOKBACK_BUFFER = 7;
+    private static final long SECONDS_PER_DAY = 86_400L;
 
-    static {
-        System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
 
-        System.setProperty(
-                "yahoofinance.baseurl.quotesquery1v7",
-                "https://query1.finance.yahoo.com/v6/finance/quote"
-        );
-
-        System.setProperty(
-                "yahoofinance.baseurl.histquotes",
-                "https://query1.finance.yahoo.com/v7/finance/download"
-        );
-    }
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public float priceOn(Asset asset, Date date) {
-        Calendar target = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        target.setTime(date);
+        // --- 1. Build period1 / period2 (Unix seconds) -----------------------
+        long targetEpoch = date.toInstant().getEpochSecond();
+        long period1 = targetEpoch - DAYS_LOOKBACK_BUFFER * SECONDS_PER_DAY;
+        long period2 = targetEpoch + DAYS_LOOKBACK_BUFFER * SECONDS_PER_DAY;
 
-        Calendar from = (Calendar) target.clone();
-        from.add(Calendar.DAY_OF_MONTH, -DAYS_LOOKBACK_BUFFER);
-
-        Calendar to = (Calendar) target.clone();
-        to.add(Calendar.DAY_OF_MONTH, DAYS_LOOKBACK_BUFFER);
+        // --- 2. Build URL ----------------------------------------------------
+        String encoded = URLEncoder.encode(asset.ticker(), StandardCharsets.UTF_8);
+        String url = String.format(
+                "https://query2.finance.yahoo.com/v8/finance/chart/%s"
+                        + "?period1=%d&period2=%d&interval=1d&events=history",
+                encoded, period1, period2);
 
         try {
-            Stock stock = YahooFinance.get(asset.ticker());
-            if (stock == null) {
-                throw new PriceNotAvailableException("No data returned for " + asset);
+            // --- 3. Execute HTTP request ------------------------------------
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("User-Agent", "Mozilla/5.0") // helps avoid 429s
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(
+                    request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+                throw new PriceFetchFailedException(
+                        String.format("HTTP %d for %s (%s)",
+                                response.statusCode(), asset, url));
             }
 
-            List<HistoricalQuote> history = stock.getHistory(from, to, Interval.DAILY);
-            if (history == null || history.isEmpty()) {
-                throw new PriceNotAvailableException(
-                        String.format("No historical data for %s between %s and %s", asset, from.getTime(), to.getTime())
-                );
+            // --- 4. Parse JSON ------------------------------------------------
+            JsonNode root = mapper.readTree(response.body());
+            JsonNode result = root.at("/chart/result/0");
+            if (result.isMissingNode()) {
+                throw new PriceNotAvailableException("Empty result for " + asset);
             }
 
-            HistoricalQuote bar = history.stream()
-                    .filter(h -> h.getDate() != null)
-                    .filter(h -> !h.getDate().after(target))
-                    .max((a, b) -> a.getDate().compareTo(b.getDate()))
-                    .orElseThrow(() -> new PriceNotAvailableException(
-                            String.format("No historical bar found for %s on or before %s", asset, date)
-                    ));
+            JsonNode timestamps = result.path("timestamp");
+            JsonNode closes = result.at("/indicators/quote/0/close");
 
-            BigDecimal close = bar.getClose() != null ? bar.getClose() : bar.getAdjClose();
-            if (close == null) {
-                throw new PriceNotAvailableException(
-                        String.format("Close price missing for %s on %s", asset, date)
-                );
+            if (!timestamps.isArray() || !closes.isArray()
+                    || timestamps.size() != closes.size()) {
+                throw new PriceNotAvailableException("Malformed data for " + asset);
             }
 
-            return close.floatValue();
-        } catch (IOException ex) {
+            // --- 5. Walk arrays to find the latest bar ≤ target date ---------
+            float chosen = Float.NaN;
+            for (int i = 0; i < timestamps.size(); i++) {
+                long ts = timestamps.get(i).asLong() * 1000; // to millis
+                if (ts > date.getTime()) break;              // past target
+
+                if (!closes.get(i).isNull()) {
+                    chosen = closes.get(i).floatValue();
+                }
+            }
+
+            if (Float.isNaN(chosen)) {
+                // Fallback to meta.regularMarketPrice if available
+                JsonNode fallback = result.at("/meta/regularMarketPrice");
+                if (!fallback.isMissingNode() && !fallback.isNull()) {
+                    chosen = (float) fallback.asDouble();
+                } else {
+                    throw new PriceNotAvailableException(
+                            "No bar ≤ target date for " + asset);
+                }
+            }
+            return chosen;
+
+        } catch (IOException | InterruptedException ex) {
             logger.error("Error fetching price for {} on {}:", asset, date, ex);
+            Thread.currentThread().interrupt();
             throw new PriceFetchFailedException(
-                    String.format("Unable to fetch price for %s from Yahoo Finance %s", asset, ex)
-            );
+                    String.format("Unable to fetch price for %s (%s)", asset, ex));
         }
     }
 }

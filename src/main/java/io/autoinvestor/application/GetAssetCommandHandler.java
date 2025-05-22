@@ -5,6 +5,8 @@ import io.autoinvestor.domain.AssetId;
 import io.autoinvestor.domain.AssetRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 public class GetAssetCommandHandler {
@@ -16,15 +18,17 @@ public class GetAssetCommandHandler {
     }
 
     public GetAssetResponse handle(GetAssetCommand command) {
-        Asset asset = repository.findById(AssetId.of(command.assetId()))
-                .orElseThrow(() -> new AssetNotFoundException(
-                        "Asset not found with id: " + command.assetId()));
+        Optional<Asset> asset = repository.findById(AssetId.of(command.assetId()));
+
+        if (asset.isEmpty()) {
+            throw new AssetNotFoundException("Asset not found with ID: " + command.assetId());
+        }
 
         return new GetAssetResponse(
-                asset.id(),
-                asset.mic(),
-                asset.ticker(),
-                asset.name()
+                asset.get().id(),
+                asset.get().mic(),
+                asset.get().ticker(),
+                asset.get().name()
         );
     }
 }
