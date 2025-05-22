@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {
-        RegisterAssetController.class
+        RegisterAssetController.class,
+        GetAllAssetsController.class,
+        GetAssetController.class,
+        GetAssetPriceController.class,
 })
 public class GlobalExceptionHandler {
 

@@ -15,13 +15,13 @@ public class InMemoryAssetRepository implements AssetRepository {
 
     @Override
     public void save(Asset asset) {
-        String key = asset.mic() + ":" + asset.ticker();
-        assetStore.put(key, asset);
+        assetStore.put(asset.id(), asset);
     }
 
     @Override
     public boolean exists(String mic, String ticker) {
-        return assetStore.containsKey(mic + ":" + ticker);
+        return assetStore.values().stream()
+                .anyMatch(asset -> asset.mic().equals(mic) && asset.ticker().equals(ticker));
     }
 
     @Override

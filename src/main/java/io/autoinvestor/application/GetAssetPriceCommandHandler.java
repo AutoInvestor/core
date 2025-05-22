@@ -6,6 +6,8 @@ import io.autoinvestor.domain.AssetPriceFetcher;
 import io.autoinvestor.domain.AssetRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 public class GetAssetPriceCommandHandler {
@@ -19,10 +21,13 @@ public class GetAssetPriceCommandHandler {
     }
 
     public GetAssetPriceResponse handle(GetAssetPriceCommand command) {
-        Asset asset = repository.findById(AssetId.of(command.assetId()))
-                .orElseThrow(() -> new AssetNotFoundException("Asset not found with id: " + command.assetId()));
+        Optional<Asset> asset = repository.findById(AssetId.of(command.assetId()));
 
-        float price = fetcher.priceOn(asset, command.date());
+        if (asset.isEmpty()) {
+            throw new AssetNotFoundException("Asset not found with ID: " + command.assetId());
+        }
+
+        float price = fetcher.priceOn(asset.get(), command.date());
         return new GetAssetPriceResponse(price, command.date());
     }
 }
