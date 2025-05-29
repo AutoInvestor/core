@@ -31,7 +31,7 @@ public class GetAssetPriceController {
         GetAssetPriceResponse response = handler.handle(new GetAssetPriceCommand(assetId, date));
         PriceDTO dto = new PriceDTO(
                 response.date(),
-                response.price()
+                Math.round(response.price() * 100)
         );
         return ResponseEntity.ok(dto);
     }
