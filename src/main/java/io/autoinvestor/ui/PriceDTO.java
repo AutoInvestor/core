@@ -7,4 +7,4 @@ import java.util.Date;
 public record PriceDTO(
         @JsonFormat(shape = JsonFormat.Shape.STRING)
         Date date,
-        int priceWithCents) { }
+        int price) { }
