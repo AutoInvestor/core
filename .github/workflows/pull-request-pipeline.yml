@@ -23,18 +23,5 @@ jobs:
       - name: Build & Test
         run: ./gradlew clean build
 
-  lint:
-    runs-on: ubuntu-22.04
-    needs: build-and-test
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v7.4.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Spotless Check
+        run: ./gradlew spotlessCheck
