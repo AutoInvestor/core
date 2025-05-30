@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-and-test-pipeline:
     runs-on: ubuntu-22.04
     env:
       SPRING_PROFILES_ACTIVE: local
