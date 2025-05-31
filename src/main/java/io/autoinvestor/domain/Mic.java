@@ -1,22 +1,22 @@
 package io.autoinvestor.domain;
 
 public class Mic {
-  private final String value;
+    private final String value;
 
-  private Mic(String value) {
-    this.value = value;
-  }
+    private Mic(String value) {
+        this.value = value;
+    }
 
-  public static Mic from(String mic) {
-    return new Mic(mic);
-  }
+    public static Mic from(String mic) {
+        return new Mic(mic);
+    }
 
-  public String value() {
-    return value;
-  }
+    public String value() {
+        return value;
+    }
 
-  @Override
-  public String toString() {
-    return "Mic{" + "mic='" + value + '\'' + '}';
-  }
+    @Override
+    public String toString() {
+        return "Mic{" + "mic='" + value + '\'' + '}';
+    }
 }

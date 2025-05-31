@@ -19,27 +19,27 @@ import com.google.pubsub.v1.ProjectTopicName;
 @Profile("prod")
 public class GcpPubSubEventPublisher implements EventPublisher {
 
-  private final Publisher publisher;
-  private final EventMessageMapper mapper;
+    private final Publisher publisher;
+    private final EventMessageMapper mapper;
 
-  public GcpPubSubEventPublisher(
-      @Value("${GCP_PROJECT}") String projectId,
-      @Value("${PUBSUB_TOPIC}") String topic,
-      ObjectMapper objectMapper)
-      throws Exception {
-    this.mapper = new EventMessageMapper(objectMapper);
-    ProjectTopicName topicName = ProjectTopicName.of(projectId, topic);
-    this.publisher = Publisher.newBuilder(topicName).build();
-  }
+    public GcpPubSubEventPublisher(
+            @Value("${GCP_PROJECT}") String projectId,
+            @Value("${PUBSUB_TOPIC}") String topic,
+            ObjectMapper objectMapper)
+            throws Exception {
+        this.mapper = new EventMessageMapper(objectMapper);
+        ProjectTopicName topicName = ProjectTopicName.of(projectId, topic);
+        this.publisher = Publisher.newBuilder(topicName).build();
+    }
 
-  @Override
-  public void publish(List<Event<?>> events) {
-    events.stream().map(mapper::toMessage).forEach(publisher::publish);
-  }
+    @Override
+    public void publish(List<Event<?>> events) {
+        events.stream().map(mapper::toMessage).forEach(publisher::publish);
+    }
 
-  @PreDestroy
-  public void shutdown() throws Exception {
-    publisher.shutdown();
-    publisher.awaitTermination(1, TimeUnit.MINUTES);
-  }
+    @PreDestroy
+    public void shutdown() throws Exception {
+        publisher.shutdown();
+        publisher.awaitTermination(1, TimeUnit.MINUTES);
+    }
 }

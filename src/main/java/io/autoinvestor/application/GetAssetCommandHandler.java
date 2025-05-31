@@ -11,20 +11,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class GetAssetCommandHandler {
 
-  private final AssetRepository repository;
+    private final AssetRepository repository;
 
-  public GetAssetCommandHandler(AssetRepository repository) {
-    this.repository = repository;
-  }
-
-  public GetAssetResponse handle(GetAssetCommand command) {
-    Optional<Asset> asset = repository.findById(AssetId.of(command.assetId()));
-
-    if (asset.isEmpty()) {
-      throw new AssetNotFoundException("Asset not found with ID: " + command.assetId());
+    public GetAssetCommandHandler(AssetRepository repository) {
+        this.repository = repository;
     }
 
-    return new GetAssetResponse(
-        asset.get().id(), asset.get().mic(), asset.get().ticker(), asset.get().name());
-  }
+    public GetAssetResponse handle(GetAssetCommand command) {
+        Optional<Asset> asset = repository.findById(AssetId.of(command.assetId()));
+
+        if (asset.isEmpty()) {
+            throw new AssetNotFoundException("Asset not found with ID: " + command.assetId());
+        }
+
+        return new GetAssetResponse(
+                asset.get().id(), asset.get().mic(), asset.get().ticker(), asset.get().name());
+    }
 }
