@@ -11,17 +11,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/assets")
 public class GetAssetController {
 
-  private final GetAssetCommandHandler handler;
+    private final GetAssetCommandHandler handler;
 
-  public GetAssetController(GetAssetCommandHandler handler) {
-    this.handler = handler;
-  }
+    public GetAssetController(GetAssetCommandHandler handler) {
+        this.handler = handler;
+    }
 
-  @GetMapping("/{assetId}")
-  public ResponseEntity<AssetDTO> getAsset(@PathVariable String assetId) {
-    GetAssetResponse response = handler.handle(new GetAssetCommand(assetId));
-    AssetDTO dto =
-        new AssetDTO(response.assetId(), response.mic(), response.ticker(), response.name());
-    return ResponseEntity.ok(dto);
-  }
+    @GetMapping("/{assetId}")
+    public ResponseEntity<AssetDTO> getAsset(@PathVariable String assetId) {
+        GetAssetResponse response = handler.handle(new GetAssetCommand(assetId));
+        AssetDTO dto =
+                new AssetDTO(
+                        response.assetId(), response.mic(), response.ticker(), response.name());
+        return ResponseEntity.ok(dto);
+    }
 }

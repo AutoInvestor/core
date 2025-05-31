@@ -46,9 +46,10 @@ bootBuildImage {
 
 spotless {
     java {
-        googleJavaFormat('1.22.0')
+        googleJavaFormat('1.22.0').aosp()
         removeUnusedImports()
         trimTrailingWhitespace()
+        leadingTabsToSpaces()
         endWithNewline()
         importOrder '', 'java', 'javax', 'org', 'com'
         target 'src/**/*.java'
@@ -56,7 +57,7 @@ spotless {
 
     format 'misc', {
         target '*.gradle', '*.md', '.gitignore'
-        indentWithSpaces()
+        leadingTabsToSpaces()
         trimTrailingWhitespace()
         endWithNewline()
     }

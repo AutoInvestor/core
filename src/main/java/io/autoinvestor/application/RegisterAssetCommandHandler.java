@@ -9,25 +9,28 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterAssetCommandHandler {
 
-  private final AssetRepository repository;
-  private final EventPublisher eventPublisher;
+    private final AssetRepository repository;
+    private final EventPublisher eventPublisher;
 
-  public RegisterAssetCommandHandler(AssetRepository repository, EventPublisher eventPublisher) {
-    this.repository = repository;
-    this.eventPublisher = eventPublisher;
-  }
-
-  public RegisterAssetResponse handle(RegisterAssetCommand command) {
-    if (this.repository.exists(command.mic(), command.ticker())) {
-      throw new AssetAlreadyExists(
-          "Duplicated asset for this mic: " + command.mic() + " and ticker: " + command.ticker());
+    public RegisterAssetCommandHandler(AssetRepository repository, EventPublisher eventPublisher) {
+        this.repository = repository;
+        this.eventPublisher = eventPublisher;
     }
 
-    Asset asset = Asset.create(command.mic(), command.ticker(), command.name());
+    public RegisterAssetResponse handle(RegisterAssetCommand command) {
+        if (this.repository.exists(command.mic(), command.ticker())) {
+            throw new AssetAlreadyExists(
+                    "Duplicated asset for this mic: "
+                            + command.mic()
+                            + " and ticker: "
+                            + command.ticker());
+        }
 
-    this.repository.save(asset);
-    this.eventPublisher.publish(asset.releaseEvents());
+        Asset asset = Asset.create(command.mic(), command.ticker(), command.name());
 
-    return new RegisterAssetResponse(asset.id(), asset.mic(), asset.ticker(), asset.name());
-  }
+        this.repository.save(asset);
+        this.eventPublisher.publish(asset.releaseEvents());
+
+        return new RegisterAssetResponse(asset.id(), asset.mic(), asset.ticker(), asset.name());
+    }
 }

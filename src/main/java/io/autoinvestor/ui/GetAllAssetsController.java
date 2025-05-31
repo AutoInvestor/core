@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/assets")
 public class GetAllAssetsController {
 
-  private final GetAllAssetsCommandHandler handler;
+    private final GetAllAssetsCommandHandler handler;
 
-  public GetAllAssetsController(GetAllAssetsCommandHandler handler) {
-    this.handler = handler;
-  }
+    public GetAllAssetsController(GetAllAssetsCommandHandler handler) {
+        this.handler = handler;
+    }
 
-  @GetMapping
-  public ResponseEntity<List<AssetDTO>> getAllAssets() {
-    List<GetAssetResponse> assets = handler.handle();
-    List<AssetDTO> dtos =
-        assets.stream()
-            .map(a -> new AssetDTO(a.assetId(), a.mic(), a.ticker(), a.name()))
-            .collect(Collectors.toList());
-    return ResponseEntity.ok(dtos);
-  }
+    @GetMapping
+    public ResponseEntity<List<AssetDTO>> getAllAssets() {
+        List<GetAssetResponse> assets = handler.handle();
+        List<AssetDTO> dtos =
+                assets.stream()
+                        .map(a -> new AssetDTO(a.assetId(), a.mic(), a.ticker(), a.name()))
+                        .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
 }
